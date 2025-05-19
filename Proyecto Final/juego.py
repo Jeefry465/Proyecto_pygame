@@ -1,8 +1,7 @@
 import pygame
 import sys 
 
-ANCHO=500
-ALTO=800
+
 
 # Inicializar pygame
 if __name__ == '__main__':
