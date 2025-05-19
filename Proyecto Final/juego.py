@@ -1,6 +1,9 @@
 import pygame
 import sys 
 
+ANCHO=500
+ALTO=800
+
 # Inicializar pygame
 if __name__ == '__main__':
     pygame.init()
@@ -25,3 +28,4 @@ if __name__ == '__main__':
 
         # Actualizar la pantalla
         pygame.display.update()
+
