@@ -43,6 +43,9 @@ if __name__ == '__main__':
         if mover_abajo == True:
             eje_y = 5
 
+        #hacer mover al jugador
+        Personaje.movimiento(eje_x, eje_y)
+
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
@@ -62,6 +65,7 @@ if __name__ == '__main__':
                 
                 if evento.key == pygame.K_s:
                     mover_abajo = True
+                    
 
 
         # Llenar la pantalla con un color
