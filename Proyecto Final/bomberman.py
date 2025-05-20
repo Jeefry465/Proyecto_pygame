@@ -2,7 +2,7 @@ import pygame
 
 class Personaje:
     def __init__(self, x, y):
-        self.player = pygame.Rect(0, 0, 20, 20)
+        self.player = pygame.Rect(0, 0, 80, 80)
         self.player.center = (x,y)
     
     def dibujar(self,ventana):
