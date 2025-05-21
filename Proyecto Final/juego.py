@@ -1,6 +1,6 @@
 import pygame
 import sys 
-from bomberman import Personaje
+from bomberman import Personaje, Bomba
 from constantes import *
 
 
@@ -27,6 +27,8 @@ if __name__ == '__main__':
 
     # Se crea un reloj para controlar la velocidad de fotogramas
     reloj = pygame.time.Clock()
+
+    bombas = []
 
     # Bucle principal
     while True:
@@ -88,8 +90,17 @@ if __name__ == '__main__':
                 if evento.key == pygame.K_s:
                     mover_abajo = False
 
+            if evento.type == pygame.KEYDOWN:
+
+                if evento.key == pygame.K_SPACE:
+                    bombas.append(Bomba(jugador.player.x, jugador.player.y))
+        
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)
+
+        for bomba in bombas:
+            bomba.actualizar()
+            bomba.dibujar(ventana)
 
         # Dibujar el jugador
         jugador.dibujar(ventana)
