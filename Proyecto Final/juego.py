@@ -12,11 +12,18 @@ if __name__ == '__main__':
     ventana = pygame.display.set_mode((1000, 600))
     pygame.display.set_caption("BomberMan")
 
-    # Se crea el jugador, forma actual caudrado y posicion en el plano
-    jugador = Personaje(30,30)
+    animacion_jugador = []
+    #for i in range(7):
+        #img = pygame.image.load(f"Proyecto Final//Recursos//Imagenes_personaje//{i}.png")
 
-    # Color fondo
-    BLANCO = (255, 255, 255)
+    #Se carga una imagen del jugador 
+    imagen_jugador = pygame.image.load("Proyecto Final//Recursos//Imagenes_personaje//1.png")
+
+    #Tamaño de la imagen del jugador
+    imagen_jugador = pygame.transform.scale(imagen_jugador,(imagen_jugador.get_width()*TAMANO, imagen_jugador.get_height()*TAMANO))
+
+    # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
+    jugador = Personaje(30,30,imagen_jugador)
 
 #Variables de movimiento del personaje.
 

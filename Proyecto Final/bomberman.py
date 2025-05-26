@@ -2,16 +2,29 @@ import pygame
 import time 
 
 class Personaje:
-    def __init__(self, x, y):
+    def __init__(self, x, y,imagen):
         self.player = pygame.Rect(0, 0, 20, 20)
         self.player.center = (x,y)
+        self.imagen = imagen
+        self.flip = False # Variable para controlar la dirección de la imagen del jugador
     
     def dibujar(self,ventana):
-        pygame.draw.rect(ventana, (255,255,0), self.player)
+        # Selecciona la imagen volteada o normal según la dirección
+        imagen_a_dibujar = pygame.transform.flip(self.imagen, self.flip, False)
+        ventana.blit(imagen_a_dibujar, self.player)
+       
 
     def movimiento(self, eje_x, eje_y):
+        if eje_x < 0:
+            self.flip = True
+        elif eje_x > 0:
+            self.flip = False
+
         self.player.x = self.player.x + eje_x
         self.player.y = self.player.y + eje_y
+
+
+
 
 class Bomba:
 
