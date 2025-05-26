@@ -12,18 +12,25 @@ if __name__ == '__main__':
     ventana = pygame.display.set_mode((1000, 600))
     pygame.display.set_caption("BomberMan")
 
+    #Funcion que ayuda a ajustar el tamaño de las imagenes 
+    def tamano_imagenes(imagen,tamano):
+        ancho = imagen.get_width()
+        alto = imagen.get_height()
+        nueva_imagen = pygame.transform.scale(imagen, (int(ancho * tamano), int(alto * tamano)))
+
+        return nueva_imagen 
+
     animacion_jugador = []
-    #for i in range(7):
-        #img = pygame.image.load(f"Proyecto Final//Recursos//Imagenes_personaje//{i}.png")
 
-    #Se carga una imagen del jugador 
-    imagen_jugador = pygame.image.load("Proyecto Final//Recursos//Imagenes_personaje//1.png")
+    for i in range(1,7):
+        img = pygame.image.load(f"Proyecto Final//Recursos//Imagenes_personaje//imagen{i}.png")
+        img = tamano_imagenes(img, TAMANO)
 
-    #Tamaño de la imagen del jugador
-    imagen_jugador = pygame.transform.scale(imagen_jugador,(imagen_jugador.get_width()*TAMANO, imagen_jugador.get_height()*TAMANO))
+        animacion_jugador.append(img)
+
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
-    jugador = Personaje(30,30,imagen_jugador)
+    jugador = Personaje(30,30,animacion_jugador)
 
 #Variables de movimiento del personaje.
 
@@ -59,7 +66,8 @@ if __name__ == '__main__':
         if mover_abajo == True:
             eje_y = VELOCIDAD_JUGADOR
 
-
+        # Actualizar el jugador
+        jugador.actualizar()
         #hacer mover al jugador
         jugador.movimiento(eje_x, eje_y)
 

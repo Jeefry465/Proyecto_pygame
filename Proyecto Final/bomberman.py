@@ -2,13 +2,18 @@ import pygame
 import time 
 
 class Personaje:
-    def __init__(self, x, y,imagen):
+    def __init__(self, x, y, animacion_jugador):
         self.player = pygame.Rect(0, 0, 20, 20)
         self.player.center = (x,y)
-        self.imagen = imagen
+        self.animacion_jugador = animacion_jugador
+        #inicializa el frame del jugador en 1
+        self.frame = 0
+        self.actualizar_tiempo = pygame.time.get_ticks() # Guarda el tiempo actual para controlar la animación
+        self.imagen = self.animacion_jugador[self.frame] # Asigna la imagen del jugador desde la lista de animación
         self.flip = False # Variable para controlar la dirección de la imagen del jugador
     
     def dibujar(self,ventana):
+    
         # Selecciona la imagen volteada o normal según la dirección
         imagen_a_dibujar = pygame.transform.flip(self.imagen, self.flip, False)
         ventana.blit(imagen_a_dibujar, self.player)
@@ -23,6 +28,18 @@ class Personaje:
         self.player.x = self.player.x + eje_x
         self.player.y = self.player.y + eje_y
 
+    # Actualiza la imagen del jugador
+    def actualizar(self):
+        tiempo_esperado = 200  # Tiempo en milisegundos entre cada cambio de imagen
+        self.imagen = self.animacion_jugador[self.frame]  # Actualiza la imagen del jugador
+        
+        if pygame.time.get_ticks() - self.actualizar_tiempo >= tiempo_esperado:
+            self.frame = self.frame + 1  # Avanza al siguiente frame que representa la siguiente imagen
+            self.actualizar_tiempo = pygame.time.get_ticks()  # Actualiza el tiempo actual
+        
+        if self.frame >= len(self.animacion_jugador):
+            self.frame = 0
+        
 
 
 
