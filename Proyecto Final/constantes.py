@@ -5,3 +5,5 @@ VELOCIDAD_JUGADOR = 3
 BLANCO = (255, 255, 255)
 #Tamaño personaje
 TAMANO = 0.3
+#Tamaño enemigo
+TAMANO_ENEMIGO = 1
