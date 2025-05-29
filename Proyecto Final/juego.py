@@ -50,12 +50,16 @@ if __name__ == '__main__':
         numero_animacion = contar_carpeta(ruta_temporal)
         print(f"Numero de animaciones de {enemi}: {numero_animacion}")
 
-        """for i in range(numero_animacion):
-            imagen_enemigo = pygame.image.load(f"{ruta_temporal}//{enemi}.{i + 1}.png").convert_alpha()
-            imagen_enemigo = tamano_imagenes(imagen_enemigo, TAMANO_ENEMIGO)
-            lista_temporal.append(imagen_enemigo)
+        for i in range(1, numero_animacion + 1):
+            ruta_imagen = f"{ruta_temporal}/{enemi}{i}.png"
+            try:
+                imagen_enemigo = pygame.image.load(ruta_imagen).convert_alpha()
+                imagen_enemigo = tamano_imagenes(imagen_enemigo, TAMANO_ENEMIGO)
+                lista_temporal.append(imagen_enemigo)
+            except Exception as e:
+                print(f"No se pudo cargar la imagen: {ruta_imagen} - {e}")
 
-        animacion_enemigos.append(lista_temporal)"""
+        animacion_enemigos.append(lista_temporal)
     
 
 
@@ -65,13 +69,23 @@ if __name__ == '__main__':
     jugador = Personaje(30,30,animacion_jugador)
 
     #Se crea los enemigos que adopta la clase personaje 
-    """enemigo1 = Personaje(400,500,animacion_enemigos[0])
-    enemigo2 = Personaje(800,700,animacion_enemigos[1])
+    enemigo1 = Personaje(400,500,animacion_enemigos[0])
+    enemigo2 = Personaje(600,300,animacion_enemigos[1])
+    enemigo3 = Personaje(800,200,animacion_enemigos[2])
+    enemigo4 = Personaje(200,100,animacion_enemigos[3])
+    
+    
 
     #Crear lista de enemigos en donde vamos a añadir cada uno de ellos 
     lista_enemigos = []
     lista_enemigos.append(enemigo1)
-    lista_enemigos.append(enemigo2)"""
+    lista_enemigos.append(enemigo2)
+    lista_enemigos.append(enemigo3)
+    lista_enemigos.append(enemigo4)
+    
+
+    
+    
 
 
 
@@ -115,8 +129,8 @@ if __name__ == '__main__':
         jugador.actualizar()
 
         #Actualizar enemigo
-        """for enemi in lista_enemigos:
-            enemi.actualizar()"""
+        for enemi in lista_enemigos:
+            enemi.actualizar()
 
 
         #hacer mover al jugador
@@ -172,8 +186,8 @@ if __name__ == '__main__':
         jugador.dibujar(ventana)
 
         # Dibujar enemigo
-        """for enemi in lista_enemigos:
-            enemi.dibujar(ventana)"""
+        for enemi in lista_enemigos:
+            enemi.dibujar(ventana)
         
 
         # Actualizar la pantalla
