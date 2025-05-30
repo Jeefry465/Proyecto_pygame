@@ -66,20 +66,20 @@ if __name__ == '__main__':
 
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
-    jugador = Personaje(30,30,animacion_jugador)
+    jugador = Personaje(30,30,animacion_jugador, energia = 100)
 
     #Se crea los enemigos que adopta la clase personaje 
-    enemigo1 = Personaje(400,500,animacion_enemigos[0])
-    enemigo2 = Personaje(600,300,animacion_enemigos[1])
-    enemigo3 = Personaje(800,200,animacion_enemigos[2])
-    enemigo4 = Personaje(200,100,animacion_enemigos[3])
+    enemigo1 = Personaje(400,500,animacion_enemigos[0], energia = 100)
+    enemigo2 = Personaje(600,300,animacion_enemigos[1], energia =100)
+    enemigo3 = Personaje(800,200,animacion_enemigos[2], energia = 100)
+    enemigo4 = Personaje(200,100,animacion_enemigos[3] ,energia = 100)
     
     
 
     #Crear lista de enemigos en donde vamos a añadir cada uno de ellos 
     lista_enemigos = []
     lista_enemigos.append(enemigo1)
-    lista_enemigos.append(enemigo2)
+    lista_enemigos.append(enemigo2) 
     lista_enemigos.append(enemigo3)
     lista_enemigos.append(enemigo4)
     
@@ -131,6 +131,7 @@ if __name__ == '__main__':
         #Actualizar enemigo
         for enemi in lista_enemigos:
             enemi.actualizar()
+            print (enemi.energia)
 
 
         #hacer mover al jugador
@@ -179,7 +180,7 @@ if __name__ == '__main__':
         ventana.fill(BLANCO)
 
         for bomba in bombas:
-            bomba.actualizar()
+            bomba.actualizar(lista_enemigos)
             bomba.dibujar(ventana)
 
         # Dibujar el jugador
