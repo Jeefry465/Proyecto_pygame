@@ -7,3 +7,5 @@ BLANCO = (255, 255, 255)
 TAMANO = 0.3
 #Tamaño enemigo
 TAMANO_ENEMIGO = 0.1
+#Máximo de bombas que puede colocar el jugador
+MAX_BOMBAS = 3

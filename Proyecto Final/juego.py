@@ -174,14 +174,22 @@ if __name__ == '__main__':
             if evento.type == pygame.KEYDOWN:
 
                 if evento.key == pygame.K_SPACE:
-                    bombas.append(Bomba(jugador.player.x, jugador.player.y))
+                    # Verificar si el jugador puede colocar más bombas
+                    if len(bombas) < MAX_BOMBAS:
+                        bombas.append(Bomba(jugador.player.x, jugador.player.y))
         
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)
 
+        nuevas_bombas = []
+        # Actualizar y dibujar bombas
         for bomba in bombas:
-            bomba.actualizar(lista_enemigos)
+            eliminar = bomba.actualizar(lista_enemigos)
             bomba.dibujar(ventana)
+            if not eliminar:
+                nuevas_bombas.append(bomba)
+        bombas = nuevas_bombas
+          
 
         # Dibujar el jugador
         jugador.dibujar(ventana)

@@ -46,26 +46,34 @@ class Personaje:
 
 
 
-class Bomba(pygame.sprite.Sprite):
+class Bomba:
 
     def __init__(self, x, y, tiempo_expl = 3):
         self.rect = pygame.Rect(x, y, 20, 20) # Crea un rectángulo en la posición (x, y) de tamaño 20x20 para representar la bomba
         self.tiempo_colocdada = time.time() # Guarda el tiempo en que la bomba fue colocada
         self.tiempo_expl = tiempo_expl # Tiempo en segundos que tarda en explotar la bomba
         self.explotada = False # Tiempo en segundos que tarda en explotar la bomba
+        self.tiempo_explotada = None # Guarda el tiempo en que la bomba explotó, inicialmente es None
 
     def actualizar(self,lista_enemigos):
-        if not self.explotada and time.time() - self.tiempo_colocdada >= self.tiempo_expl:
+        ahora = time.time() # Obtiene el tiempo actual en segundos
+        #Si la bomba no ha explotado y han pasado el tiempo de explosión, cambia su estado a explotada
+        if not self.explotada and (ahora - self.tiempo_colocdada ) >= self.tiempo_expl:
             self.explotada = True
+            self.tiempo_explotada = ahora 
 
         #verificar colision con enenmigos
-        for enemi in  lista_enemigos:
-            if enemi.player.colliderect(self.rect):
-                daño=15 + random.randint(-7, b=7)
-                enemi.energia = enemi.energia - daño
-                self.kill()
-                break
-
+        if self.explotada:
+            area = self.rect.inflate(40, 40)
+            for enemi in lista_enemigos:
+                if enemi.player.colliderect(area):
+                    daño = 15 + random.randint(-7, 7)
+                    enemi.energia -= daño
+            # Si han pasado 0.5 s desde la explosión, indícale al juego que elimine el rectángulo de la bomba
+            if (ahora - self.tiempo_explotada) >= 0.5:
+                return True
+            
+        return False # Si la bomba no ha explotado o no ha pasado el tiempo de explosión, devuelve False para indicar que no debe eliminarse
 
             
 
