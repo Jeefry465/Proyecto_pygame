@@ -9,3 +9,5 @@ TAMANO = 0.3
 TAMANO_ENEMIGO = 0.1
 #Máximo de bombas que puede colocar el jugador
 MAX_BOMBAS = 3
+#Tamaño de los coarazones 
+TAMANO_COARAZON = 0.1

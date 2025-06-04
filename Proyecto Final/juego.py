@@ -29,7 +29,11 @@ if __name__ == '__main__':
     ventana = pygame.display.set_mode((1000, 600))
     pygame.display.set_caption("BomberMan")
 
-  
+    #Importar barra de energia
+    corazon_vacio = pygame.image.load("Proyecto Final//Recursos//Corazon Vida//barra1.png").convert_alpha()
+    corazon_lleno = pygame.image.load("Proyecto Final//Recursos//Corazon Vida//barra2.png").convert_alpha()
+    corazon_vacio = tamano_imagenes(corazon_vacio, TAMANO_COARAZON)
+    corazon_lleno = tamano_imagenes(corazon_lleno, TAMANO_COARAZON)
 
     animacion_jugador = []
 
@@ -62,7 +66,13 @@ if __name__ == '__main__':
         animacion_enemigos.append(lista_temporal)
     
 
-
+    #Vida jugador 
+    def vida_jugador():
+        for i in range(3):
+            if jugador.energia >= (i + 1) * 33:
+                ventana.blit(corazon_lleno, (10 + i * 40, 10))
+            else:
+                ventana.blit(corazon_vacio, (10 + i * 40, 10))
 
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
@@ -83,10 +93,6 @@ if __name__ == '__main__':
     lista_enemigos.append(enemigo3)
     lista_enemigos.append(enemigo4)
     
-
-    
-    
-
 
 
 #Variables de movimiento del personaje.
@@ -197,6 +203,9 @@ if __name__ == '__main__':
         # Dibujar enemigo
         for enemi in lista_enemigos:
             enemi.dibujar(ventana)
+
+        # Dibujar la barra de vida del jugador
+        vida_jugador()
         
 
         # Actualizar la pantalla

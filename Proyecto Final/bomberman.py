@@ -6,6 +6,7 @@ import random
 class Personaje:
     def __init__(self, x, y, animacion_jugador,energia):
         self.energia = energia
+        self.vivo = True
         self.player = pygame.Rect(0, 0, 20, 20)
         self.player.center = (x,y)
         self.animacion_jugador = animacion_jugador
@@ -33,6 +34,11 @@ class Personaje:
 
     # Actualiza la imagen del jugador
     def actualizar(self):
+        #Comprobar si el jugador está vivo
+        if self.energia <= 0:
+            self.energia = 0
+            self.vivo = False  # Si la energía es menor o igual a 0, el jugador no está vivo
+            
         tiempo_esperado = 200  # Tiempo en milisegundos entre cada cambio de imagen
         self.imagen = self.animacion_jugador[self.frame]  # Actualiza la imagen del jugador
         
