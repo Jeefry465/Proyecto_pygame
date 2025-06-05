@@ -74,6 +74,10 @@ if __name__ == '__main__':
             else:
                 ventana.blit(corazon_vacio, (10 + i * 40, 10))
 
+    def dibujar_cuadricula():
+        for x in range(30):
+            pygame.draw.line(ventana, GRIS, (x * TAMANO_CUADRICULA, 0), (x * TAMANO_CUADRICULA, 1000))
+            pygame.draw.line(ventana, GRIS, (0, x * TAMANO_CUADRICULA ), (1000, x * TAMANO_CUADRICULA))
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
     jugador = Personaje(30,30,animacion_jugador, energia = 100)
@@ -130,7 +134,6 @@ if __name__ == '__main__':
             eje_y = VELOCIDAD_JUGADOR
 
 
-
         # Actualizar el jugador
         jugador.actualizar()
 
@@ -152,7 +155,7 @@ if __name__ == '__main__':
             if evento.type == pygame.KEYDOWN:
 
                 if evento.key == pygame.K_a:
-                   mover_izquierda = True
+                    mover_izquierda = True
 
                 if evento.key == pygame.K_d:
                     mover_derecha = True
@@ -187,6 +190,9 @@ if __name__ == '__main__':
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)
 
+        #Dibujar lines guias del grid
+        dibujar_cuadricula()
+
         nuevas_bombas = []
         # Actualizar y dibujar bombas
         for bomba in bombas:
@@ -195,7 +201,7 @@ if __name__ == '__main__':
             if not eliminar:
                 nuevas_bombas.append(bomba)
         bombas = nuevas_bombas
-          
+
 
         # Dibujar el jugador
         jugador.dibujar(ventana)
