@@ -3,7 +3,8 @@ import sys
 from bomberman import Personaje, Bomba
 from constantes import *
 import os
-
+from mundo import Mundo
+import csv
 
   #Funcion que ayuda a ajustar el tamaño de las imagenes 
 def tamano_imagenes(imagen,tamano):
@@ -34,6 +35,14 @@ if __name__ == '__main__':
     corazon_lleno = pygame.image.load("Proyecto Final//Recursos//Corazon Vida//barra2.png").convert_alpha()
     corazon_vacio = tamano_imagenes(corazon_vacio, TAMANO_COARAZON)
     corazon_lleno = tamano_imagenes(corazon_lleno, TAMANO_COARAZON)
+
+    # Cargar imágenes del mapa
+    mapa_list = []
+    for i in range(425):
+        imagen = pygame.image.load(f"Proyecto Final//Recursos//Imagenes Mapa//mapa_{i+1}.png").convert_alpha()
+        imagen = tamano_imagenes(imagen,(TAMANO_CUADRICULA / imagen.get_width()))
+        # Ajustar el tamaño de la imagen al tamaño de la cuadrícula
+        mapa_list.append(imagen)
 
     animacion_jugador = []
 
@@ -74,6 +83,25 @@ if __name__ == '__main__':
             else:
                 ventana.blit(corazon_vacio, (10 + i * 40, 10))
 
+    #Matriz del mundo del juego
+    mundo_data = []
+
+    for fila in range(FILAS):
+        filas = [58] * COLUMNAS
+        mundo_data.append(filas)
+    print(filas)
+    """""
+    #Cargar el archivo que contine el nivel 
+    with open("Proyecto Final//Recursos//Niveles//Mapa1.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter = ',')
+        for x, fila in enumerate(reader):
+            for y, columna in enumerate(fila):
+                mundo_data[x][y] = int(columna)
+"""
+    mundo = Mundo()
+    mundo.cargar_mundo(mundo_data, mapa_list)
+
+    #Se dibuja una cuadricula en la pantalla
     def dibujar_cuadricula():
         for x in range(30):
             pygame.draw.line(ventana, GRIS, (x * TAMANO_CUADRICULA, 0), (x * TAMANO_CUADRICULA, 1000))
@@ -140,7 +168,7 @@ if __name__ == '__main__':
         #Actualizar enemigo
         for enemi in lista_enemigos:
             enemi.actualizar()
-            print (enemi.energia)
+        
 
 
         #hacer mover al jugador
@@ -189,6 +217,9 @@ if __name__ == '__main__':
         
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)
+
+        # Dibujar el mundo
+        mundo.dibujar_mundo(ventana)
 
         #Dibujar lines guias del grid
         dibujar_cuadricula()

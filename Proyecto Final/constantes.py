@@ -15,3 +15,6 @@ TAMANO_COARAZON = 0.1
 GRIS = (200, 200, 200)
 #Tamaño de la cuadricula
 TAMANO_CUADRICULA = 50
+#Tamaño mundo
+FILAS = 18
+COLUMNAS = 30
