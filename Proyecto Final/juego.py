@@ -40,7 +40,7 @@ if __name__ == '__main__':
     mapa_list = []
     for i in range(425):
         imagen = pygame.image.load(f"Proyecto Final//Recursos//Imagenes Mapa//mapa_{i+1}.png").convert_alpha()
-        imagen = tamano_imagenes(imagen,(TAMANO_CUADRICULA / imagen.get_width()))
+        imagen = pygame.transform.scale(imagen,(TAMANO_CUADRICULA, TAMANO_CUADRICULA))
         # Ajustar el tamaño de la imagen al tamaño de la cuadrícula
         mapa_list.append(imagen)
 
@@ -57,19 +57,23 @@ if __name__ == '__main__':
     clase_enemigos = nombre_carpeta(carpeta_enemigos)
     animacion_enemigos = []
 
-    for enemi in clase_enemigos:
+    for enemi in clase_enemigos: # Recorre cada enemigo en la carpeta
+        # Crea una lista temporal para almacenar las imágenes de cada enemigo
         lista_temporal = []
         ruta_temporal = f"Proyecto Final/Recursos/Enemigos/{enemi}"
         numero_animacion = contar_carpeta(ruta_temporal)
         print(f"Numero de animaciones de {enemi}: {numero_animacion}")
 
-        for i in range(1, numero_animacion + 1):
+        for i in range(1, numero_animacion + 1): # Carga las imágenes de cada enemigo
+
             ruta_imagen = f"{ruta_temporal}/{enemi}{i}.png"
-            try:
-                imagen_enemigo = pygame.image.load(ruta_imagen).convert_alpha()
+            try: # Intenta cargar la imagen
+                imagen_enemigo = pygame.image.load(ruta_imagen).convert_alpha() # Convierte la imagen para que sea compatible con Pygame
+                # Ajusta el tamaño de la imagen al tamaño del enemigo
                 imagen_enemigo = tamano_imagenes(imagen_enemigo, TAMANO_ENEMIGO)
                 lista_temporal.append(imagen_enemigo)
-            except Exception as e:
+            except Exception as e: # Si ocurre un error al cargar la imagen, imprime un mensaje de error
+                # Manejo de errores al cargar la imagen
                 print(f"No se pudo cargar la imagen: {ruta_imagen} - {e}")
 
         animacion_enemigos.append(lista_temporal)
@@ -77,35 +81,39 @@ if __name__ == '__main__':
 
     #Vida jugador 
     def vida_jugador():
-        for i in range(3):
-            if jugador.energia >= (i + 1) * 33:
-                ventana.blit(corazon_lleno, (10 + i * 40, 10))
+        for i in range(3): # Dibujar 3 corazones
+            if jugador.energia >= (i + 1) * 33: # Corazones llenos
+                ventana.blit(corazon_lleno, (10 + i * 40, 10)) # Posición de los corazones
             else:
-                ventana.blit(corazon_vacio, (10 + i * 40, 10))
+                ventana.blit(corazon_vacio, (10 + i * 40, 10)) # Posición de los corazones
 
     #Matriz del mundo del juego
     mundo_data = []
 
     for fila in range(FILAS):
-        filas = [58] * COLUMNAS
-        mundo_data.append(filas)
-    print(filas)
-    """""
+        filas = [58] * COLUMNAS # Valor por defecto para cada celda
+        mundo_data.append(filas) # Añadir la fila a la matriz
+
     #Cargar el archivo que contine el nivel 
     with open("Proyecto Final//Recursos//Niveles//Mapa1.csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter = ',')
-        for x, fila in enumerate(reader):
-            for y, columna in enumerate(fila):
-                mundo_data[x][y] = int(columna)
-"""
-    mundo = Mundo()
-    mundo.cargar_mundo(mundo_data, mapa_list)
+        reader = csv.reader(csvfile, delimiter = ';') # Lea el archivo CSV 
+        for x, fila in enumerate(reader): # Recorre cada fila del archivo CSV
+            if x < FILAS: # Asegúrese de que no exceda el número de filas
+                for y, columna in enumerate(fila): # Recorre cada columna de la fila
+                    if y < COLUMNAS: # Asegúrese de que no exceda el número de columnas
+                        if columna.strip() == '': # Si la celda está vacía, asigna un valor por defecto
+                            mundo_data[x][y] = 0  # Valor por defecto si la celda está vacía
+                        else:
+                            mundo_data[x][y] = int(columna) # Asigna el valor de la celda del CSV a la matriz
+
+    mundo = Mundo() # Crear una instancia de la clase Mundo
+    mundo.cargar_mundo(mundo_data, mapa_list) # Cargar el mundo con los datos y las imágenes del mapa
 
     #Se dibuja una cuadricula en la pantalla
     def dibujar_cuadricula():
-        for x in range(30):
-            pygame.draw.line(ventana, GRIS, (x * TAMANO_CUADRICULA, 0), (x * TAMANO_CUADRICULA, 1000))
-            pygame.draw.line(ventana, GRIS, (0, x * TAMANO_CUADRICULA ), (1000, x * TAMANO_CUADRICULA))
+        for x in range(30): # Dibujar lineas verticales y horizontales
+            pygame.draw.line(ventana, GRIS, (x * TAMANO_CUADRICULA, 0), (x * TAMANO_CUADRICULA, 1000)) # Linea vertical
+            pygame.draw.line(ventana, GRIS, (0, x * TAMANO_CUADRICULA ), (1000, x * TAMANO_CUADRICULA)) # Linea horizontal
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
     jugador = Personaje(30,30,animacion_jugador, energia = 100)
@@ -224,7 +232,7 @@ if __name__ == '__main__':
         #Dibujar lines guias del grid
         dibujar_cuadricula()
 
-        nuevas_bombas = []
+        nuevas_bombas = [] 
         # Actualizar y dibujar bombas
         for bomba in bombas:
             eliminar = bomba.actualizar(lista_enemigos)
