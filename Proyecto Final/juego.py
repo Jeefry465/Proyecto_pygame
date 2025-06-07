@@ -6,7 +6,7 @@ import os
 from mundo import Mundo
 import csv
 
-  #Funcion que ayuda a ajustar el tamaño de las imagenes 
+#Funcion que ayuda a ajustar el tamaño de las imagenes 
 def tamano_imagenes(imagen,tamano):
     ancho = imagen.get_width()
     alto = imagen.get_height()
@@ -27,8 +27,10 @@ if __name__ == '__main__':
     pygame.init()
 
     # Crear una ventana
-    ventana = pygame.display.set_mode((1000, 600))
+    ventana = pygame.display.set_mode((1200, 600))
     pygame.display.set_caption("BomberMan")
+
+    posicion_pantalla = [0, 0]
 
     #Importar barra de energia
     corazon_vacio = pygame.image.load("Proyecto Final//Recursos//Corazon Vida//barra1.png").convert_alpha()
@@ -116,13 +118,13 @@ if __name__ == '__main__':
             pygame.draw.line(ventana, GRIS, (0, x * TAMANO_CUADRICULA ), (1000, x * TAMANO_CUADRICULA)) # Linea horizontal
 
     # Se crea el jugador,posicion en el plano, adopta imagen jugador la cual es la imagen 1
-    jugador = Personaje(30,30,animacion_jugador, energia = 100)
+    jugador = Personaje(80,80,animacion_jugador, energia = 100, tipo='jugador')
 
     #Se crea los enemigos que adopta la clase personaje 
-    enemigo1 = Personaje(400,500,animacion_enemigos[0], energia = 100)
-    enemigo2 = Personaje(600,300,animacion_enemigos[1], energia =100)
-    enemigo3 = Personaje(800,200,animacion_enemigos[2], energia = 100)
-    enemigo4 = Personaje(200,100,animacion_enemigos[3] ,energia = 100)
+    enemigo1 = Personaje(400,500,animacion_enemigos[0], energia = 100, tipo='enemigo')
+    enemigo2 = Personaje(600,300,animacion_enemigos[1], energia =100, tipo='enemigo')
+    enemigo3 = Personaje(800,200,animacion_enemigos[2], energia = 100, tipo='enemigo')
+    enemigo4 = Personaje(200,100,animacion_enemigos[3] ,energia = 100, tipo='enemigo')
     
     
 
@@ -173,6 +175,18 @@ if __name__ == '__main__':
         # Actualizar el jugador
         jugador.actualizar()
 
+        #Desplazar el jugador en la pantalla
+        desplazamiento_x = jugador.player.x - ventana.get_width() // 2 # Calcula el desplazamiento en el eje x
+        desplazamiento_y = jugador.player.y - ventana.get_height() // 2 # Calcula el desplazamiento en el eje y
+
+        # Limitar el desplazamiento para que no se salga del mundo
+        maximo_desplazamiento_x = (COLUMNAS * TAMANO_CUADRICULA) - ventana.get_width()
+        maximo_desplazamiento_y = (FILAS * TAMANO_CUADRICULA) - ventana.get_height()
+        maximo_desplazamiento_x = max(0, maximo_desplazamiento_x)
+        maximo_desplazamiento_y = max(0, maximo_desplazamiento_y)
+        desplazamiento_x = max(0, min(desplazamiento_x, maximo_desplazamiento_x))
+        desplazamiento_y = max(0, min(desplazamiento_y, maximo_desplazamiento_y))
+
         #Actualizar enemigo
         for enemi in lista_enemigos:
             enemi.actualizar()
@@ -180,7 +194,7 @@ if __name__ == '__main__':
 
 
         #hacer mover al jugador
-        jugador.movimiento(eje_x, eje_y)
+        posicion_pantalla = jugador.movimiento(eje_x, eje_y)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -226,28 +240,29 @@ if __name__ == '__main__':
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)
 
-        # Dibujar el mundo
-        mundo.dibujar_mundo(ventana)
-
         #Dibujar lines guias del grid
         dibujar_cuadricula()
+
+        # Dibujar el mundo
+        mundo.dibujar_mundo(ventana, desplazamiento_x, desplazamiento_y)
+        # Actualizar el mundo con el desplazamiento
 
         nuevas_bombas = [] 
         # Actualizar y dibujar bombas
         for bomba in bombas:
             eliminar = bomba.actualizar(lista_enemigos)
-            bomba.dibujar(ventana)
+            bomba.dibujar(ventana, desplazamiento_x, desplazamiento_y)
             if not eliminar:
                 nuevas_bombas.append(bomba)
         bombas = nuevas_bombas
 
 
         # Dibujar el jugador
-        jugador.dibujar(ventana)
+        jugador.dibujar(ventana, desplazamiento_x, desplazamiento_y) # Dibuja el jugador en la ventana con el desplazamiento calculado
 
         # Dibujar enemigo
         for enemi in lista_enemigos:
-            enemi.dibujar(ventana)
+            enemi.dibujar(ventana, desplazamiento_x, desplazamiento_y) # Dibuja cada enemigo en la ventana con el desplazamiento calculado
 
         # Dibujar la barra de vida del jugador
         vida_jugador()

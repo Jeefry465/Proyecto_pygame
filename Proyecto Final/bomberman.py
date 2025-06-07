@@ -2,9 +2,10 @@ import pygame
 import time 
 import math
 import random
+from constantes import *
 
 class Personaje:
-    def __init__(self, x, y, animacion_jugador,energia):
+    def __init__(self, x, y, animacion_jugador,energia, tipo):
         self.energia = energia
         self.vivo = True
         self.player = pygame.Rect(0, 0, 20, 20)
@@ -15,15 +16,16 @@ class Personaje:
         self.actualizar_tiempo = pygame.time.get_ticks() # Guarda el tiempo actual para controlar la animación
         self.imagen = self.animacion_jugador[self.frame] # Asigna la imagen del jugador desde la lista de animación
         self.flip = False # Variable para controlar la dirección de la imagen del jugador
-    
-    def dibujar(self,ventana):
+        self.tipo = tipo  # Tipo de personaje (jugador o enemigo)
+
+    def dibujar(self,ventana, desplazamiento_x = 0, desplazamiento_y = 0):
     
         # Selecciona la imagen volteada o normal según la dirección
         imagen_a_dibujar = pygame.transform.flip(self.imagen, self.flip, False)
-        ventana.blit(imagen_a_dibujar, self.player)
-       
+        ventana.blit(imagen_a_dibujar, (self.player.x - desplazamiento_x, self.player.y - desplazamiento_y)) 
 
     def movimiento(self, eje_x, eje_y):
+        posicion_pantalla = [0, 0]  # Inicializa la posición de la pantalla en (0, 0)
         if eje_x < 0:
             self.flip = True
         elif eje_x > 0:
@@ -32,6 +34,12 @@ class Personaje:
         self.player.x = self.player.x + eje_x
         self.player.y = self.player.y + eje_y
 
+        # Calcula la posición de la pantalla en función de la posición del jugador
+        if self.tipo == 'jugador':
+            self.player.x = max(0, min(self.player.x, COLUMNAS * TAMANO_CUADRICULA - self.player.width)) # Limita la posición x del jugador para que no salga de los límites del mapa
+            self.player.y = max(0, min(self.player.y, FILAS * TAMANO_CUADRICULA - self.player.height)) # Limita la posición y del jugador para que no salga de los límites del mapa
+        return posicion_pantalla # Devuelve la posición de la pantalla, que en este caso es (0, 0) ya que no se está desplazando la pantalla
+    
     # Actualiza la imagen del jugador
     def actualizar(self):
         #Comprobar si el jugador está vivo
@@ -83,7 +91,9 @@ class Bomba:
 
             
 
-    def dibujar(self, ventana):
+    def dibujar(self, ventana, desplazamiento_x = 0, desplazamiento_y = 0):
+        ventana.blit(self.imagen,(self.x - desplazamiento_x, self.y - desplazamiento_y)) # Dibuja la imagen de la bomba en la ventana en la posición ajustada por el desplazamiento
+
         # Si la bomba no ha explotado, dibuja un rectángulo negro (la bomba)
         if not self.explotada:
             pygame.draw.rect(ventana, (0, 0, 0), self.rect)

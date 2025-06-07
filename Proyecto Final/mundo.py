@@ -20,7 +20,13 @@ class Mundo:
                 mapa_data = [imagen, imagen_rect, imagen_x, imagen_y] # Crea una lista con la imagen, el rectángulo y las coordenadas
                 self.map.append(mapa_data) # Añade la lista al mapa
 
-    def dibujar_mundo(self, ventana): # Dibuja el mundo en la ventana
+    def actualizar_mundo(self, posicion_pantalla):
+        for tile in self.map:
+            tile[1].x += posicion_pantalla[0]
+            tile[1].y += posicion_pantalla[1]
+            tile[1].topleft = (tile[2] + posicion_pantalla[0], tile[3] + posicion_pantalla[1])
+
+    def dibujar_mundo(self, ventana, desplazamineto_x = 0, desplazamiento_y = 0): # Dibuja el mundo en la ventana
         for tile in self.map: # Recorre cada tile en el mapa
-            ventana.blit(tile[0], tile[1]) # Dibuja la imagen del tile en la ventana usando su rectángulo
-            # tile[0] es la imagen y tile[1] es el rectángulo de la imagen
+            imagen, imagen_rect, imagen_x, imagen_y = tile
+            ventana.blit(imagen, (imagen_x - desplazamineto_x, imagen_y - desplazamiento_y)) # Dibuja la imagen en la ventana en la posición calculada
