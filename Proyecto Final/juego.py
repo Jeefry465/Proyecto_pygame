@@ -147,6 +147,11 @@ if __name__ == '__main__':
     # Se crea un reloj para controlar la velocidad de fotogramas
     reloj = pygame.time.Clock()
 
+    # Imagenes de la bomba
+    imagen_bomba = tamano_imagenes(pygame.image.load("Proyecto Final//Recursos//Bomba//bomba_1.png").convert_alpha(), TAMANO_BOMBA)
+    imagen_explosion = tamano_imagenes(pygame.image.load("Proyecto Final//Recursos//Bomba//bomba_2.png").convert_alpha(), TAMANO_BOMBA)
+    imagen_bomba_final = tamano_imagenes(pygame.image.load("Proyecto Final//Recursos//Bomba//bomba_3.png").convert_alpha(), TAMANO_BOMBA)
+
     bombas = []
 
     # Bucle principal
@@ -235,7 +240,7 @@ if __name__ == '__main__':
                 if evento.key == pygame.K_SPACE:
                     # Verificar si el jugador puede colocar más bombas
                     if len(bombas) < MAX_BOMBAS:
-                        bombas.append(Bomba(jugador.player.x, jugador.player.y))
+                        bombas.append(Bomba(jugador.player.x, jugador.player.y, imagen_bomba, imagen_explosion, imagen_bomba_final)) # Añadir una nueva bomba a la lista de bombas
         
         # Llenar la pantalla con un color
         ventana.fill(BLANCO)

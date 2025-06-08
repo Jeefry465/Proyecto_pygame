@@ -62,12 +62,15 @@ class Personaje:
 
 class Bomba:
 
-    def __init__(self, x, y, tiempo_expl = 3):
-        self.rect = pygame.Rect(x, y, 20, 20) # Crea un rectángulo en la posición (x, y) de tamaño 20x20 para representar la bomba
+    def __init__(self, x, y,imagen_bomba, imagen_explosion, imagen_bomba_final,tiempo_expl = 3):
+        self.rect = pygame.Rect(x, y, imagen_bomba.get_width(), imagen_bomba.get_height())# Crea un rectángulo en la posición (x, y) de tamaño 20x20 para representar la bomba
+        self.imagen_bomba = imagen_bomba # Asigna la imagen de la bomba
+        self.imagen_explosion = imagen_explosion # Asigna la imagen de la explosión de la bomba 
+        self.imagen_bomba_final = imagen_bomba_final # Asigna la imagen final de la bomba (opcional, si se usa en el juego)
         self.tiempo_colocdada = time.time() # Guarda el tiempo en que la bomba fue colocada
         self.tiempo_expl = tiempo_expl # Tiempo en segundos que tarda en explotar la bomba
         self.explotada = False # Tiempo en segundos que tarda en explotar la bomba
-        self.tiempo_explotada = None # Guarda el tiempo en que la bomba explotó, inicialmente es None
+        self.tiempo_explotada = None # Guarda el tiempo en que la bomba explotó, inicialmente es None 
 
     def actualizar(self,lista_enemigos):
         ahora = time.time() # Obtiene el tiempo actual en segundos
@@ -92,13 +95,19 @@ class Bomba:
             
 
     def dibujar(self, ventana, desplazamiento_x = 0, desplazamiento_y = 0):
-        ventana.blit(self.imagen,(self.x - desplazamiento_x, self.y - desplazamiento_y)) # Dibuja la imagen de la bomba en la ventana en la posición ajustada por el desplazamiento
-
+        
         # Si la bomba no ha explotado, dibuja un rectángulo negro (la bomba)
         if not self.explotada:
-            pygame.draw.rect(ventana, (0, 0, 0), self.rect)
+            ventana.blit(self.imagen_bomba, (self.rect.x - desplazamiento_x, self.rect.y - desplazamiento_y)) # 
         else:
-            pygame.draw.rect(ventana, (255, 0, 0), self.rect.inflate(40, 40)) # Si explotó, dibuja un rectángulo rojo más grande para simular la explosión
+            tiempo_explosion = time.time() - self.tiempo_explotada
+            # Mostrar la explosión durante 0.3s, luego la imagen final hasta eliminar
+            if tiempo_explosion < 0.3:
+                x = self.rect.x - desplazamiento_x - (self.imagen_explosion.get_width() - self.rect.width) // 2 
+                y = self.rect.y - desplazamiento_y - (self.imagen_explosion.get_height() - self.rect.height) // 2
+                ventana.blit(self.imagen_explosion, (x, y))
+            else:
+                ventana.blit(self.imagen_bomba_final, (self.rect.x - desplazamiento_x, self.rect.y - desplazamiento_y))
             
 
     
