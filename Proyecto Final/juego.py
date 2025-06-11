@@ -6,6 +6,14 @@ import os
 from mundo import Mundo
 import csv
 
+def mostrar_game_over(ventana):
+    game_over_fuente = pygame.font.SysFont(None, 80)
+    game_over_texto = game_over_fuente.render("GAME OVER", True, (255, 0, 0)) # Renderiza el texto "GAME OVER" en rojo
+    ventana.fill((0, 0, 0)) # Rellena la ventana
+    ventana.blit(game_over_texto, (ventana.get_width() // 2 - game_over_texto.get_width() // 2, ventana.get_height() // 2 - game_over_texto.get_height() // 2)) # Centra el texto en la ventana
+
+    pygame.display.update() # Actualiza la pantalla para mostrar el texto
+
 #Funcion que ayuda a ajustar el tamaño de las imagenes 
 def tamano_imagenes(imagen,tamano):
     ancho = imagen.get_width()
@@ -50,7 +58,7 @@ if __name__ == '__main__':
 
     for i in range(1,7):
         img = pygame.image.load(f"Proyecto Final//Recursos//Imagenes_personaje//imagen{i}.png")
-        img = tamano_imagenes(img, TAMANO)
+        img = pygame.transform.scale(img, (ANCHO_PERSONAJE, ALTO_PERSONAJE)) # Ajusta el tamaño de la imagen al tamaño del personaje
 
         animacion_jugador.append(img)
     
@@ -72,7 +80,7 @@ if __name__ == '__main__':
             try: # Intenta cargar la imagen
                 imagen_enemigo = pygame.image.load(ruta_imagen).convert_alpha() # Convierte la imagen para que sea compatible con Pygame
                 # Ajusta el tamaño de la imagen al tamaño del enemigo
-                imagen_enemigo = tamano_imagenes(imagen_enemigo, TAMANO_ENEMIGO)
+                imagen_enemigo = pygame.transform.scale(imagen_enemigo, (TAMANO_ENEMIGO, TAMANO_ENEMIGO)) # Ajusta el tamaño de la imagen al tamaño del enemigo
                 lista_temporal.append(imagen_enemigo)
             except Exception as e: # Si ocurre un error al cargar la imagen, imprime un mensaje de error
                 # Manejo de errores al cargar la imagen
@@ -97,7 +105,7 @@ if __name__ == '__main__':
         mundo_data.append(filas) # Añadir la fila a la matriz
 
     #Cargar el archivo que contine el nivel 
-    with open("Proyecto Final//Recursos//Niveles//Mapa1.csv", newline='') as csvfile:
+    with open("Proyecto Final//Recursos//Niveles//Mapa1.1.csv", newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter = ';') # Lea el archivo CSV 
         for x, fila in enumerate(reader): # Recorre cada fila del archivo CSV
             if x < FILAS: # Asegúrese de que no exceda el número de filas
@@ -154,125 +162,106 @@ if __name__ == '__main__':
 
     bombas = []
 
+    game_over = False # Variable para controlar el estado del juego
+
     # Bucle principal
     while True:
-
-        # Controlar la velocidad de fotogramas
-        reloj.tick(FPS)
-
-        #Movimiento del jugador
-        eje_x = 0
-        eje_y = 0
-
-        if mover_derecha == True:
-            eje_x = VELOCIDAD_JUGADOR
-
-        if mover_izquierda == True:
-            eje_x = -VELOCIDAD_JUGADOR
-
-        if mover_arriba == True:
-            eje_y = -VELOCIDAD_JUGADOR
-
-        if mover_abajo == True:
-            eje_y = VELOCIDAD_JUGADOR
-
-
-        # Actualizar el jugador
-        jugador.actualizar()
-
-        #Desplazar el jugador en la pantalla
-        desplazamiento_x = jugador.player.x - ventana.get_width() // 2 # Calcula el desplazamiento en el eje x
-        desplazamiento_y = jugador.player.y - ventana.get_height() // 2 # Calcula el desplazamiento en el eje y
-
-        # Limitar el desplazamiento para que no se salga del mundo
-        maximo_desplazamiento_x = (COLUMNAS * TAMANO_CUADRICULA) - ventana.get_width()
-        maximo_desplazamiento_y = (FILAS * TAMANO_CUADRICULA) - ventana.get_height()
-        maximo_desplazamiento_x = max(0, maximo_desplazamiento_x)
-        maximo_desplazamiento_y = max(0, maximo_desplazamiento_y)
-        desplazamiento_x = max(0, min(desplazamiento_x, maximo_desplazamiento_x))
-        desplazamiento_y = max(0, min(desplazamiento_y, maximo_desplazamiento_y))
-
-        #Actualizar enemigo
-        for enemi in lista_enemigos:
-            enemi.actualizar()
-        
-
-
-        #hacer mover al jugador
-        posicion_pantalla = jugador.movimiento(eje_x, eje_y)
-
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            # Eventos de teclado solo si el juego NO ha terminado
+            if not game_over:
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_a:
+                        mover_izquierda = True
+                    if evento.key == pygame.K_d:
+                        mover_derecha = True
+                    if evento.key == pygame.K_w:
+                        mover_arriba = True
+                    if evento.key == pygame.K_s:
+                        mover_abajo = True
+                if evento.type == pygame.KEYUP:
+                    if evento.key == pygame.K_a:
+                        mover_izquierda = False
+                    if evento.key == pygame.K_d:
+                        mover_derecha = False
+                    if evento.key == pygame.K_w:
+                        mover_arriba = False
+                    if evento.key == pygame.K_s:
+                        mover_abajo = False
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_SPACE:
+                        if len(bombas) < MAX_BOMBAS:
+                            bombas.append(Bomba(jugador.player.x, jugador.player.y, imagen_bomba, imagen_explosion, imagen_bomba_final))
 
-            #Se crea un evento el cual si apretamos una tecla va hacer un movimiento
-            if evento.type == pygame.KEYDOWN:
+        if not game_over:
+            # Controlar la velocidad de fotogramas
+            reloj.tick(FPS)
 
-                if evento.key == pygame.K_a:
-                    mover_izquierda = True
+            # Movimiento del jugador
+            eje_x = 0
+            eje_y = 0
+            if mover_derecha:
+                eje_x = VELOCIDAD_JUGADOR
+            if mover_izquierda:
+                eje_x = -VELOCIDAD_JUGADOR
+            if mover_arriba:
+                eje_y = -VELOCIDAD_JUGADOR
+            if mover_abajo:
+                eje_y = VELOCIDAD_JUGADOR
 
-                if evento.key == pygame.K_d:
-                    mover_derecha = True
-                
-                if evento.key == pygame.K_w:
-                    mover_arriba = True
-                
-                if evento.key == pygame.K_s:
-                    mover_abajo = True
-            #Se crea un evento el cual si soltamos una tecla va dejar de moverse        
-            if evento.type == pygame.KEYUP:
+            jugador.actualizar()
 
-                if evento.key == pygame.K_a:
-                    mover_izquierda = False
+            desplazamiento_x = jugador.player.x - ventana.get_width() // 2
+            desplazamiento_y = jugador.player.y - ventana.get_height() // 2
+            maximo_desplazamiento_x = (COLUMNAS * TAMANO_CUADRICULA) - ventana.get_width()
+            maximo_desplazamiento_y = (FILAS * TAMANO_CUADRICULA) - ventana.get_height()
+            maximo_desplazamiento_x = max(0, maximo_desplazamiento_x)
+            maximo_desplazamiento_y = max(0, maximo_desplazamiento_y)
+            desplazamiento_x = max(0, min(desplazamiento_x, maximo_desplazamiento_x))
+            desplazamiento_y = max(0, min(desplazamiento_y, maximo_desplazamiento_y))
 
-                if evento.key == pygame.K_d:
-                    mover_derecha = False
-                
-                if evento.key == pygame.K_w:
-                    mover_arriba = False
-                
-                if evento.key == pygame.K_s:
-                    mover_abajo = False
+            for enemi in lista_enemigos:
+                enemi.actualizar()
 
-            if evento.type == pygame.KEYDOWN:
+            posicion_pantalla = jugador.movimiento(eje_x, eje_y)
 
-                if evento.key == pygame.K_SPACE:
-                    # Verificar si el jugador puede colocar más bombas
-                    if len(bombas) < MAX_BOMBAS:
-                        bombas.append(Bomba(jugador.player.x, jugador.player.y, imagen_bomba, imagen_explosion, imagen_bomba_final)) # Añadir una nueva bomba a la lista de bombas
-        
-        # Llenar la pantalla con un color
-        ventana.fill(BLANCO)
+            # Llenar la pantalla con un color
+            ventana.fill(BLANCO)
+            dibujar_cuadricula()
+            mundo.dibujar_mundo(ventana, desplazamiento_x, desplazamiento_y)
 
-        #Dibujar lines guias del grid
-        dibujar_cuadricula()
+            nuevas_bombas = []
+            for bomba in bombas:
+                eliminar = bomba.actualizar(lista_enemigos)
+                bomba.dibujar(ventana, desplazamiento_x, desplazamiento_y)
+                if not eliminar:
+                    nuevas_bombas.append(bomba)
+            bombas = nuevas_bombas
 
-        # Dibujar el mundo
-        mundo.dibujar_mundo(ventana, desplazamiento_x, desplazamiento_y)
-        # Actualizar el mundo con el desplazamiento
+            jugador.dibujar(ventana, desplazamiento_x, desplazamiento_y)
+            for enemi in lista_enemigos:
+                enemi.dibujar(ventana, desplazamiento_x, desplazamiento_y)
 
-        nuevas_bombas = [] 
-        # Actualizar y dibujar bombas
-        for bomba in bombas:
-            eliminar = bomba.actualizar(lista_enemigos)
-            bomba.dibujar(ventana, desplazamiento_x, desplazamiento_y)
-            if not eliminar:
-                nuevas_bombas.append(bomba)
-        bombas = nuevas_bombas
+            for enemi in lista_enemigos:
+                enemi.mover_automatico()
+                enemi.actualizar()
 
+            # Comprobar colisiones entre el jugador y los enemigos
+            for enemi in lista_enemigos:
+                if jugador.player.colliderect(enemi.player):
+                    jugador.energia -= 1
 
-        # Dibujar el jugador
-        jugador.dibujar(ventana, desplazamiento_x, desplazamiento_y) # Dibuja el jugador en la ventana con el desplazamiento calculado
+            # Comprobar si el jugador ha muerto
+            if jugador.energia <= 0:
+                game_over = True
 
-        # Dibujar enemigo
-        for enemi in lista_enemigos:
-            enemi.dibujar(ventana, desplazamiento_x, desplazamiento_y) # Dibuja cada enemigo en la ventana con el desplazamiento calculado
+            vida_jugador()
+            pygame.display.update()
 
-        # Dibujar la barra de vida del jugador
-        vida_jugador()
-        
-
-        # Actualizar la pantalla
-        pygame.display.update()
+        else:
+            mostrar_game_over(ventana)
+            # Espera a que el usuario cierre la ventana
+            # (ya se procesan eventos arriba, así que aquí solo se muestra la pantalla)
 

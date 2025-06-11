@@ -8,7 +8,7 @@ class Personaje:
     def __init__(self, x, y, animacion_jugador,energia, tipo):
         self.energia = energia
         self.vivo = True
-        self.player = pygame.Rect(0, 0, 20, 20)
+        self.player = pygame.Rect(x, y, ANCHO_PERSONAJE, ALTO_PERSONAJE) # Crea un rectángulo que representa al jugador con su posición inicial y tamaño
         self.player.center = (x,y)
         self.animacion_jugador = animacion_jugador
         #inicializa el frame del jugador en 1
@@ -35,10 +35,10 @@ class Personaje:
         self.player.y = self.player.y + eje_y
 
         # Calcula la posición de la pantalla en función de la posición del jugador
-        if self.tipo == 'jugador':
-            self.player.x = max(0, min(self.player.x, COLUMNAS * TAMANO_CUADRICULA - self.player.width)) # Limita la posición x del jugador para que no salga de los límites del mapa
-            self.player.y = max(0, min(self.player.y, FILAS * TAMANO_CUADRICULA - self.player.height)) # Limita la posición y del jugador para que no salga de los límites del mapa
-        return posicion_pantalla # Devuelve la posición de la pantalla, que en este caso es (0, 0) ya que no se está desplazando la pantalla
+
+        self.player.x = max(0, min(self.player.x, COLUMNAS * TAMANO_CUADRICULA - self.player.width)) # Limita la posición x del jugador para que no salga de los límites del mapa
+        self.player.y = max(0, min(self.player.y, FILAS * TAMANO_CUADRICULA - self.player.height)) # Limita la posición y del jugador para que no salga de los límites del mapa
+        
     
     # Actualiza la imagen del jugador
     def actualizar(self):
@@ -57,7 +57,31 @@ class Personaje:
         if self.frame >= len(self.animacion_jugador):
             self.frame = 0
         
-
+        
+    def mover_automatico(self):
+        # Solo para enemigos
+        if self.tipo == 'enemigo':
+            # Movimiento aleatorio: cambia de dirección cada cierto tiempo
+            if not hasattr(self, 'contador'):
+                self.contador = 0
+                self.direccion = random.choice(['arriba', 'abajo', 'izquierda', 'derecha'])
+            self.contador += 1
+            if self.contador > 60:  # Cambia de dirección cada 60 frames
+                self.direccion = random.choice(['arriba', 'abajo', 'izquierda', 'derecha'])
+                self.contador = 0
+    
+            dx, dy = 0, 0
+            if self.direccion == 'arriba':
+                dy = -VELOCIDAD_JUGADOR
+            elif self.direccion == 'abajo':
+                dy = VELOCIDAD_JUGADOR
+            elif self.direccion == 'izquierda':
+                dx = -VELOCIDAD_JUGADOR
+            elif self.direccion == 'derecha':
+                dx = VELOCIDAD_JUGADOR
+    
+            self.movimiento(dx, dy)
+        
 
 
 class Bomba:
