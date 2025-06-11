@@ -8,7 +8,7 @@ class Personaje:
     def __init__(self, x, y, animacion_jugador,energia, tipo):
         self.energia = energia
         self.vivo = True
-        self.player = pygame.Rect(x, y, ANCHO_PERSONAJE, ALTO_PERSONAJE) # Crea un rectángulo que representa al jugador con su posición inicial y tamaño
+        self.player = pygame.Rect(x, y, ANCHO_PERSONAJE - 10, ALTO_PERSONAJE - 10) # Crea un rectángulo que representa al jugador con su posición inicial y tamaño
         self.player.center = (x,y)
         self.animacion_jugador = animacion_jugador
         #inicializa el frame del jugador en 1
@@ -24,20 +24,19 @@ class Personaje:
         imagen_a_dibujar = pygame.transform.flip(self.imagen, self.flip, False)
         ventana.blit(imagen_a_dibujar, (self.player.x - desplazamiento_x, self.player.y - desplazamiento_y)) 
 
-    def movimiento(self, eje_x, eje_y):
-        posicion_pantalla = [0, 0]  # Inicializa la posición de la pantalla en (0, 0)
-        if eje_x < 0:
+    def movimiento(self, dx, dy, paredes):
+        nuevo_rect = self.player.move(dx, dy)
+        if not any(nuevo_rect.colliderect(p) for p in paredes):
+            self.player = nuevo_rect
+
+        if dx < 0:
             self.flip = True
-        elif eje_x > 0:
+        elif dx > 0:
             self.flip = False
 
-        self.player.x = self.player.x + eje_x
-        self.player.y = self.player.y + eje_y
-
-        # Calcula la posición de la pantalla en función de la posición del jugador
-
-        self.player.x = max(0, min(self.player.x, COLUMNAS * TAMANO_CUADRICULA - self.player.width)) # Limita la posición x del jugador para que no salga de los límites del mapa
-        self.player.y = max(0, min(self.player.y, FILAS * TAMANO_CUADRICULA - self.player.height)) # Limita la posición y del jugador para que no salga de los límites del mapa
+        # Limita la posición al tamaño del mapa
+        self.player.x = max(0, min(self.player.x, COLUMNAS * TAMANO_CUADRICULA - self.player.width))
+        self.player.y = max(0, min(self.player.y, FILAS * TAMANO_CUADRICULA - self.player.height))
         
     
     # Actualiza la imagen del jugador
@@ -58,18 +57,16 @@ class Personaje:
             self.frame = 0
         
         
-    def mover_automatico(self):
-        # Solo para enemigos
+    def mover_automatico(self, paredes):
         if self.tipo == 'enemigo':
-            # Movimiento aleatorio: cambia de dirección cada cierto tiempo
             if not hasattr(self, 'contador'):
                 self.contador = 0
                 self.direccion = random.choice(['arriba', 'abajo', 'izquierda', 'derecha'])
             self.contador += 1
-            if self.contador > 60:  # Cambia de dirección cada 60 frames
+            if self.contador > 60:
                 self.direccion = random.choice(['arriba', 'abajo', 'izquierda', 'derecha'])
                 self.contador = 0
-    
+
             dx, dy = 0, 0
             if self.direccion == 'arriba':
                 dy = -VELOCIDAD_JUGADOR
@@ -79,8 +76,16 @@ class Personaje:
                 dx = -VELOCIDAD_JUGADOR
             elif self.direccion == 'derecha':
                 dx = VELOCIDAD_JUGADOR
-    
-            self.movimiento(dx, dy)
+
+            # Probar si puede moverse, si no, cambiar de dirección
+            nuevo_rect = self.player.move(dx, dy)
+            if not any(nuevo_rect.colliderect(p) for p in paredes):
+                self.player = nuevo_rect
+            else:
+                # Cambia de dirección si hay colisión
+                direcciones_posibles = ['arriba', 'abajo', 'izquierda', 'derecha']
+                direcciones_posibles.remove(self.direccion)  # Evita repetir la misma dirección
+                self.direccion = random.choice(direcciones_posibles)
         
 
 
@@ -132,6 +137,5 @@ class Bomba:
                 ventana.blit(self.imagen_explosion, (x, y))
             else:
                 ventana.blit(self.imagen_bomba_final, (self.rect.x - desplazamiento_x, self.rect.y - desplazamiento_y))
-            
 
-    
+

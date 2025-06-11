@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     #Cargar el archivo que contine el nivel 
     with open("Proyecto Final//Recursos//Niveles//Mapa1.1.csv", newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter = ';') # Lea el archivo CSV 
+        reader = csv.reader(csvfile, delimiter = ',') # Lea el archivo CSV 
         for x, fila in enumerate(reader): # Recorre cada fila del archivo CSV
             if x < FILAS: # Asegúrese de que no exceda el número de filas
                 for y, columna in enumerate(fila): # Recorre cada columna de la fila
@@ -129,10 +129,10 @@ if __name__ == '__main__':
     jugador = Personaje(80,80,animacion_jugador, energia = 100, tipo='jugador')
 
     #Se crea los enemigos que adopta la clase personaje 
-    enemigo1 = Personaje(400,500,animacion_enemigos[0], energia = 100, tipo='enemigo')
-    enemigo2 = Personaje(600,300,animacion_enemigos[1], energia =100, tipo='enemigo')
-    enemigo3 = Personaje(800,200,animacion_enemigos[2], energia = 100, tipo='enemigo')
-    enemigo4 = Personaje(200,100,animacion_enemigos[3] ,energia = 100, tipo='enemigo')
+    enemigo1 = Personaje(410,570,animacion_enemigos[0], energia = 100, tipo='enemigo')
+    enemigo2 = Personaje(610,370,animacion_enemigos[1], energia =100, tipo='enemigo')
+    enemigo3 = Personaje(800,270,animacion_enemigos[2], energia = 100, tipo='enemigo')
+    enemigo4 = Personaje(200,170,animacion_enemigos[3] ,energia = 100, tipo='enemigo')
     
     
 
@@ -225,7 +225,41 @@ if __name__ == '__main__':
             for enemi in lista_enemigos:
                 enemi.actualizar()
 
-            posicion_pantalla = jugador.movimiento(eje_x, eje_y)
+            
+            paredes_base = []
+            for y, fila in enumerate(mundo_data):
+                for x, valor in enumerate(fila):
+                    if valor in [205,3,20,71,105,122,4,263,262,264,372,389,388,382,126,127,128,125,124,123]:
+                        rect = pygame.Rect(x * TAMANO_CUADRICULA,y *TAMANO_CUADRICULA,TAMANO_CUADRICULA,TAMANO_CUADRICULA)
+                        paredes_base.append(rect)
+
+    
+            paredes_jugador = list(paredes_base)
+            for bomba in bombas:
+                # Si la bomba no colisiona con el jugador, añádela
+                if not bomba.rect.colliderect(jugador.player):
+                    paredes_jugador.append(bomba.rect)
+
+            # Construye paredes para los enemigos (incluye todas las bombas)
+            paredes_enemigos = paredes_base + [b.rect for b in bombas]
+
+            # Mueve al jugador usando su lista
+            posicion_pantalla = jugador.movimiento(eje_x, eje_y, paredes_jugador)
+
+            # Mueve a los enemigos usando su lista
+            for enemi in lista_enemigos:
+                enemi.mover_automatico(paredes_enemigos)
+                enemi.actualizar()
+
+            paredes = []
+            for y, fila in enumerate(mundo_data):
+                for x, valor in enumerate(fila):
+                    if valor in [205,3,20,71,105,122,4,263,262,264,372,389,388,382,126,127,128,125,124,123]:  
+                        rect = pygame.Rect(x * TAMANO_CUADRICULA, y * TAMANO_CUADRICULA, TAMANO_CUADRICULA, TAMANO_CUADRICULA)
+                        paredes.append(rect)
+            #Añadir colision de las bombasw
+            for bomba in bombas:
+                paredes.append(bomba.rect)
 
             # Llenar la pantalla con un color
             ventana.fill(BLANCO)
@@ -244,10 +278,6 @@ if __name__ == '__main__':
             for enemi in lista_enemigos:
                 enemi.dibujar(ventana, desplazamiento_x, desplazamiento_y)
 
-            for enemi in lista_enemigos:
-                enemi.mover_automatico()
-                enemi.actualizar()
-
             # Comprobar colisiones entre el jugador y los enemigos
             for enemi in lista_enemigos:
                 if jugador.player.colliderect(enemi.player):
@@ -264,4 +294,5 @@ if __name__ == '__main__':
             mostrar_game_over(ventana)
             # Espera a que el usuario cierre la ventana
             # (ya se procesan eventos arriba, así que aquí solo se muestra la pantalla)
+
 
