@@ -90,8 +90,7 @@ class Personaje:
 
 
 class Bomba:
-
-    def __init__(self, x, y,imagen_bomba, imagen_explosion, imagen_bomba_final,tiempo_expl = 3):
+    def __init__(self, x, y, imagen_bomba, imagen_explosion, imagen_bomba_final, tiempo_expl=3):
         self.rect = pygame.Rect(x, y, imagen_bomba.get_width(), imagen_bomba.get_height())# Crea un rectángulo en la posición (x, y) de tamaño 20x20 para representar la bomba
         self.imagen_bomba = imagen_bomba # Asigna la imagen de la bomba
         self.imagen_explosion = imagen_explosion # Asigna la imagen de la explosión de la bomba 
@@ -100,25 +99,33 @@ class Bomba:
         self.tiempo_expl = tiempo_expl # Tiempo en segundos que tarda en explotar la bomba
         self.explotada = False # Tiempo en segundos que tarda en explotar la bomba
         self.tiempo_explotada = None # Guarda el tiempo en que la bomba explotó, inicialmente es None 
+        self.jugador_danado = False  # bandera para indicar si ya se hizo daño al jugador
 
-    def actualizar(self,lista_enemigos):
-        ahora = time.time() # Obtiene el tiempo actual en segundos
-        #Si la bomba no ha explotado y han pasado el tiempo de explosión, cambia su estado a explotada
-        if not self.explotada and (ahora - self.tiempo_colocdada ) >= self.tiempo_expl:
+    def actualizar(self, lista_enemigos, jugador=None):
+        ahora = time.time()
+        if not self.explotada and (ahora - self.tiempo_colocdada) >= self.tiempo_expl:
             self.explotada = True
-            self.tiempo_explotada = ahora 
+            self.tiempo_explotada = ahora
 
-        #verificar colision con enenmigos
         if self.explotada:
-            area = self.rect.inflate(40, 40)
+            area_explosion = self.rect.inflate(120, 120)
+
+            # Daño a los enemigos
             for enemi in lista_enemigos:
-                if enemi.player.colliderect(area):
-                    daño = 15 + random.randint(-7, 7)
-                    enemi.energia -= daño
-            # Si han pasado 0.5 s desde la explosión, indícale al juego que elimine el rectángulo de la bomba
+                if enemi.player.colliderect(area_explosion):
+                    enemi.energia = 0
+
+            # Daño al jugador - solo una vez
+            if (jugador 
+                and not self.jugador_danado 
+                and jugador.player.colliderect(area_explosion)):
+                jugador.energia = max(1, jugador.energia - 33)
+                self.jugador_danado = True  # marcamos que ya se aplicó el daño
+
+            # Quitar la bomba tras 0.5s
             if (ahora - self.tiempo_explotada) >= 0.5:
                 return True
-            
+
         return False # Si la bomba no ha explotado o no ha pasado el tiempo de explosión, devuelve False para indicar que no debe eliminarse
 
             
@@ -132,9 +139,17 @@ class Bomba:
             tiempo_explosion = time.time() - self.tiempo_explotada
             # Mostrar la explosión durante 0.3s, luego la imagen final hasta eliminar
             if tiempo_explosion < 0.3:
-                x = self.rect.x - desplazamiento_x - (self.imagen_explosion.get_width() - self.rect.width) // 2 
-                y = self.rect.y - desplazamiento_y - (self.imagen_explosion.get_height() - self.rect.height) // 2
-                ventana.blit(self.imagen_explosion, (x, y))
+                # Centro de la explosión
+                x_centro = self.rect.x - desplazamiento_x - (self.imagen_explosion.get_width() - self.rect.width)//2
+                y_centro = self.rect.y - desplazamiento_y - (self.imagen_explosion.get_height() - self.rect.height)//2
+                ventana.blit(self.imagen_explosion, (x_centro, y_centro))
+                
+                # Brazos (hacia cada dirección)
+                rango_extra = 60
+                ventana.blit(self.imagen_explosion, (x_centro - rango_extra, y_centro))  # Izquierda
+                ventana.blit(self.imagen_explosion, (x_centro + rango_extra, y_centro))  # Derecha
+                ventana.blit(self.imagen_explosion, (x_centro, y_centro - rango_extra))  # Arriba
+                ventana.blit(self.imagen_explosion, (x_centro, y_centro + rango_extra))  # Abajo
             else:
                 ventana.blit(self.imagen_bomba_final, (self.rect.x - desplazamiento_x, self.rect.y - desplazamiento_y))
 

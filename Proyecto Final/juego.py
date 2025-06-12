@@ -268,7 +268,7 @@ if __name__ == '__main__':
 
             nuevas_bombas = []
             for bomba in bombas:
-                eliminar = bomba.actualizar(lista_enemigos)
+                eliminar = bomba.actualizar(lista_enemigos, jugador)
                 bomba.dibujar(ventana, desplazamiento_x, desplazamiento_y)
                 if not eliminar:
                     nuevas_bombas.append(bomba)
@@ -277,6 +277,13 @@ if __name__ == '__main__':
             jugador.dibujar(ventana, desplazamiento_x, desplazamiento_y)
             for enemi in lista_enemigos:
                 enemi.dibujar(ventana, desplazamiento_x, desplazamiento_y)
+
+            # Eliminar enemigos con energía 0
+            nuevos_enemigos = []
+            for enemi in lista_enemigos:
+                if enemi.energia > 0:
+                    nuevos_enemigos.append(enemi)
+            lista_enemigos = nuevos_enemigos
 
             # Comprobar colisiones entre el jugador y los enemigos
             for enemi in lista_enemigos:
