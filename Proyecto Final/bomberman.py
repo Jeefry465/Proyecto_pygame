@@ -1,6 +1,5 @@
 import pygame 
 import time 
-import math
 import random
 from constantes import *
 
@@ -90,7 +89,7 @@ class Personaje:
 
 
 class Bomba:
-    def __init__(self, x, y, imagen_bomba, imagen_explosion, imagen_bomba_final, tiempo_expl=3):
+    def __init__(self, x, y, imagen_bomba, imagen_explosion, imagen_bomba_final, tiempo_expl=2):
         self.rect = pygame.Rect(x, y, imagen_bomba.get_width(), imagen_bomba.get_height())# Crea un rectángulo en la posición (x, y) de tamaño 20x20 para representar la bomba
         self.imagen_bomba = imagen_bomba # Asigna la imagen de la bomba
         self.imagen_explosion = imagen_explosion # Asigna la imagen de la explosión de la bomba 
@@ -100,12 +99,15 @@ class Bomba:
         self.explotada = False # Tiempo en segundos que tarda en explotar la bomba
         self.tiempo_explotada = None # Guarda el tiempo en que la bomba explotó, inicialmente es None 
         self.jugador_danado = False  # bandera para indicar si ya se hizo daño al jugador
+        self.sonido_explosion = pygame.mixer.Sound("Proyecto Final//Recursos//Music//retro-explode-1-236678.mp3")  # Carga el sonido de explosión
+        self.sonido_explosion.set_volume(0.5)  # Ajusta el volumen del sonido de explosión
 
     def actualizar(self, lista_enemigos, jugador=None):
         ahora = time.time()
         if not self.explotada and (ahora - self.tiempo_colocdada) >= self.tiempo_expl:
             self.explotada = True
             self.tiempo_explotada = ahora
+            self.sonido_explosion.play() # Reproduce el sonido de explosión
 
         if self.explotada:
             area_explosion = self.rect.inflate(120, 120)

@@ -6,13 +6,46 @@ import os
 from mundo import Mundo
 import csv
 
-def mostrar_game_over(ventana):
-    game_over_fuente = pygame.font.SysFont(None, 80)
-    game_over_texto = game_over_fuente.render("GAME OVER", True, (255, 0, 0)) # Renderiza el texto "GAME OVER" en rojo
-    ventana.fill((0, 0, 0)) # Rellena la ventana
-    ventana.blit(game_over_texto, (ventana.get_width() // 2 - game_over_texto.get_width() // 2, ventana.get_height() // 2 - game_over_texto.get_height() // 2)) # Centra el texto en la ventana
+def pantalla_inicio(ventana):
+    """Muestra la pantalla de inicio con dos botones: Iniciar y Salir."""
+    # Fuentes y texto
+    fondo = pygame.image.load("Proyecto Final//Recursos//Imagen fondo//fondo.jpg").convert_alpha()
+    fondo = pygame.transform.scale(fondo, (ventana.get_width(), ventana.get_height()))  # Ajusta el fondo al tamaño de la ventana 
 
-    pygame.display.update() # Actualiza la pantalla para mostrar el texto
+    fuente = pygame.font.SysFont(None, 50)
+    titulo = fuente.render("Bienvenido a Grid Blast", True, (255, 255, 255))
+
+    #rectángulos para ubicar los botones en pantalla
+    boton_iniciar = pygame.Rect(ventana.get_width()//2 - 100, 300, 200, 50)
+    boton_salir = pygame.Rect(ventana.get_width()//2 - 100, 400, 200, 50)
+
+    while True:
+        ventana.blit(fondo, (0, 0))
+        ventana.blit(titulo, (ventana.get_width()//2 - titulo.get_width()//2, 150))
+
+        # Dibujamos los botones
+        pygame.draw.rect(ventana, (0, 200, 0), boton_iniciar)  # color verde
+        pygame.draw.rect(ventana, (200, 0, 0), boton_salir)    # color rojo
+
+        texto_iniciar = fuente.render("Iniciar", True, (255, 255, 255))
+        texto_salir = fuente.render("Salir", True, (255, 255, 255))
+
+        ventana.blit(texto_iniciar, (boton_iniciar.centerx - texto_iniciar.get_width()//2,boton_iniciar.centery - texto_iniciar.get_height()//2))
+        ventana.blit(texto_salir,(boton_salir.centerx - texto_salir.get_width()//2,boton_salir.centery - texto_salir.get_height()//2))
+
+        pygame.display.update()
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif evento.type == pygame.MOUSEBUTTONDOWN:
+                if evento.button == 1:  # clic izquierdo
+                    if boton_iniciar.collidepoint(evento.pos):
+                        return  # salir de esta función y continuar el juego
+                    elif boton_salir.collidepoint(evento.pos):
+                        pygame.quit()
+                        sys.exit()
 
 #Funcion que ayuda a ajustar el tamaño de las imagenes 
 def tamano_imagenes(imagen,tamano):
@@ -31,14 +64,22 @@ def nombre_carpeta(carpeta):
     return os.listdir(carpeta)
 
 # Inicializar pygame
-if __name__ == '__main__':
+def main():
     pygame.init()
+
+    #inicializar el mixer de pygame y cargar el sonido de fondo
+    pygame.mixer.init()
+    pygame.mixer.music.load("Proyecto Final//Recursos//Music//exploration-chiptune-rpg-adventure-theme-336428.mp3") # Cargar música de fondo
+    pygame.mixer.music.set_volume(0.5)  # Ajustar volumen de la música
+    pygame.mixer.music.play(-1)  # Reproducir música en bucle
+
 
     # Crear una ventana
     ventana = pygame.display.set_mode((1200, 600))
-    pygame.display.set_caption("BomberMan")
+    pygame.display.set_caption("Grid Blast")
 
-    posicion_pantalla = [0, 0]
+    pantalla_inicio(ventana)  # Mostrar pantalla de inicio
+    
 
     #Importar barra de energia
     corazon_vacio = pygame.image.load("Proyecto Final//Recursos//Corazon Vida//barra1.png").convert_alpha()
@@ -163,6 +204,9 @@ if __name__ == '__main__':
     bombas = []
 
     game_over = False # Variable para controlar el estado del juego
+    victoria = False # Variable para controlar el estado de victoria
+
+    score = 0 # Inicializar el score del jugador
 
     # Bucle principal
     while True:
@@ -171,7 +215,7 @@ if __name__ == '__main__':
                 pygame.quit()
                 sys.exit()
             # Eventos de teclado solo si el juego NO ha terminado
-            if not game_over:
+            if not game_over and not victoria:
                 if evento.type == pygame.KEYDOWN:
                     if evento.key == pygame.K_a:
                         mover_izquierda = True
@@ -195,7 +239,7 @@ if __name__ == '__main__':
                         if len(bombas) < MAX_BOMBAS:
                             bombas.append(Bomba(jugador.player.x, jugador.player.y, imagen_bomba, imagen_explosion, imagen_bomba_final))
 
-        if not game_over:
+        if not game_over and not victoria:
             # Controlar la velocidad de fotogramas
             reloj.tick(FPS)
 
@@ -221,9 +265,6 @@ if __name__ == '__main__':
             maximo_desplazamiento_y = max(0, maximo_desplazamiento_y)
             desplazamiento_x = max(0, min(desplazamiento_x, maximo_desplazamiento_x))
             desplazamiento_y = max(0, min(desplazamiento_y, maximo_desplazamiento_y))
-
-            for enemi in lista_enemigos:
-                enemi.actualizar()
 
             
             paredes_base = []
@@ -283,7 +324,18 @@ if __name__ == '__main__':
             for enemi in lista_enemigos:
                 if enemi.energia > 0:
                     nuevos_enemigos.append(enemi)
+                else:
+                    score += 100
             lista_enemigos = nuevos_enemigos
+
+            # Si no quedan enemigos, el jugador gana
+            if len(lista_enemigos) == 0:
+                # Detener la música de fondo y reproducir la de victoria
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load("Proyecto Final//Recursos//Music//win.mp3")
+                pygame.mixer.music.play()
+                # marcamos estado de victoria y salimos de este bloque
+                victoria = True
 
             # Comprobar colisiones entre el jugador y los enemigos
             for enemi in lista_enemigos:
@@ -294,12 +346,84 @@ if __name__ == '__main__':
             if jugador.energia <= 0:
                 game_over = True
 
+            # Mostrar el score en la pantalla
+            font_score = pygame.font.SysFont(None, 36)
+            texto_score = font_score.render(f"Puntaje: {score}", True, (255, 255, 255)) # Renderiza el texto del score en blanco
+
+            score_x = ventana.get_width() - texto_score.get_width() - 10
+            score_y = 10
+            ventana.blit(texto_score, (score_x, score_y))
+            # Dibujar el score en la esquina superior derecha
+
             vida_jugador()
             pygame.display.update()
 
-        else:
-            mostrar_game_over(ventana)
-            # Espera a que el usuario cierre la ventana
-            # (ya se procesan eventos arriba, así que aquí solo se muestra la pantalla)
+        elif game_over:
+            # sales del bucle principal
+            return pantalla_final(ventana, "GAME OVER", "Proyecto Final//Recursos//Music//game_over.mp3")
+
+        elif victoria:
+            return pantalla_final(ventana, "¡YOU WIN!",  "Proyecto Final//Recursos//Music//win.mp3")
+
+def pantalla_final(ventana, mensaje, ruta_musica):
+    """Muestra Game Over o You Win, y dos botones: Reiniciar / Salir."""
+    # Detén la música y carga el tema correspondiente
+    pygame.mixer.music.stop()
+    pygame.mixer.music.load(ruta_musica)
+    pygame.mixer.music.play()
+
+    # Prepara texto y botones
+    fuente_tit = pygame.font.SysFont(None, 80)
+    txt_tit = fuente_tit.render(mensaje, True, (255,255,255))
+    w, h = ventana.get_size()
+    tit_x = w//2 - txt_tit.get_width()//2
+    tit_y = h//2 - txt_tit.get_height()//2 - 80
+
+    btn_w, btn_h = 200, 50
+    btn_re = pygame.Rect(w//2 - btn_w//2, tit_y + 100, btn_w, btn_h)
+    btn_sal = pygame.Rect(w//2 - btn_w//2, tit_y + 180, btn_w, btn_h)
+
+    fuente_btn = pygame.font.SysFont(None, 40)
+    txt_re = fuente_btn.render("Reiniciar", True, (255,255,255))
+    txt_sa = fuente_btn.render("Salir",      True, (255,255,255))
+
+    # Bucle propio
+    while True:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                pygame.quit(); sys.exit()
+            if ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                if btn_re.collidepoint(ev.pos):
+                    return True   # quiere reiniciar
+                if btn_sal.collidepoint(ev.pos):
+                    pygame.quit(); sys.exit()
+
+        #Dibujar todo cada frame
+        ventana.fill((0,0,0))
+        ventana.blit(txt_tit, (tit_x, tit_y))
+
+        pygame.draw.rect(ventana, (0,150,0), btn_re)
+        pygame.draw.rect(ventana, (150,0,0), btn_sal)
+
+        ventana.blit(
+            txt_re,
+            (btn_re.centerx - txt_re.get_width()//2,
+            btn_re.centery - txt_re.get_height()//2)
+        )
+        ventana.blit(
+            txt_sa,
+            (btn_sal.centerx - txt_sa.get_width()//2,
+            btn_sal.centery - txt_sa.get_height()//2)
+        )
+
+        pygame.display.update()
+
+if __name__ == '__main__':
+    while True:
+        reiniciar = main()
+        if not reiniciar:
+            break
+    pygame.quit()
+
 
 
